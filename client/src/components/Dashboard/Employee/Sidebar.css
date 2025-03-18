@@ -1,0 +1,108 @@
+/* src/components/Sidebar.css */
+.sidebar {
+  height: 100vh;
+  width: 280px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar h3 {
+  color: var(--primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar li::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary-glass);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+
+.sidebar li:hover::before {
+  transform: scaleX(1);
+}
+
+.sidebar li:hover {
+  background: var(--bg-light);
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: var(--text-dark);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar a:hover {
+  color: var(--primary);
+}
+
+.sidebar svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  transition: transform 0.3s ease;
+}
+
+.sidebar li:hover svg {
+  transform: scale(1.1);
+}
+
+.toggle-button {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: var(--primary-glass);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-button:hover {
+  transform: rotate(180deg);
+  background: var(--primary);
+  color: white;
+}
