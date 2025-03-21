@@ -35,3 +35,26 @@ coverage
 
 # Misc
 .DS_Store
+
+# Build outputs
+/dist
+/build
+/.next
+/out
+
+# Cache directories
+.cache
+/.cache
+.npm
+.eslintcache
+
+# Local build info
+.webpack
+.nuxt
+.next
+.vuepress/dist
+.serverless
+
+# Testing
+/coverage
+.nyc_output
