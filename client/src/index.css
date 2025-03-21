@@ -36,3 +36,43 @@ body {
   border: 1px solid var(--border);
   border-radius: 1rem;
 }
+
+/* Card hover effect */
+.hover-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+/* Custom select styling */
+.form-select {
+  transition: all 0.3s ease;
+}
+
+.form-select:hover {
+  background-color: #fff !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+}
+
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.1);
+}
+
+/* Badge animation */
+.badge {
+  transition: transform 0.3s ease;
+}
+
+.hover-card:hover .badge {
+  transform: scale(1.1);
+}
+
+/* Rating stars color */
+.bi-star-fill {
+  color: #ffc107;
+  font-size: 0.9rem;
+}

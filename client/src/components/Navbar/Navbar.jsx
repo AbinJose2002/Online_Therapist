@@ -1,33 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BsCart, BsPersonCircle } from "react-icons/bs";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { BsPersonCircle } from "react-icons/bs";
 import "./Navbar.css"; // For additional styling
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
+    // Check tokens and user info
     if (localStorage.getItem("patientToken")) {
-      setRole("user");
+      setUserType("patient");
+      // setUserName(JSON.parse(localStorage.getItem("patientInfo"))?.firstName || "");
     } else if (localStorage.getItem("empToken")) {
-      setRole("instructor");
-    } else if (localStorage.getItem("sellertoken")) {
-      setRole("seller");
+      setUserType("employee");
+      // setUserName(JSON.parse(localStorage.getItem("employeeInfo"))?.firstName || "");
+    } else if (localStorage.getItem("adminToken")) {
+      setUserType("admin");
+      // setUserName("Admin");
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.clear();
-    setRole(null);
+    setUserType(null);
+    setUserName("");
     navigate("/");
   };
 
-  return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light px-5">
-      <Link className="navbar-brand fw-bold" to="/">MyBrand</Link>
+  const getDashboardLink = () => {
+    switch (userType) {
+      case "patient":
+        console.log(userType)
+        return "/patient-dashboard";
+      case "employee":
+        return "/employee-dashboard";
+      case "admin":
+        return "/admin-dashboard";
+      default:
+        return "/";
+    }
+  };
 
+  return (
+    <nav className="navbar navbar-expand-lg navbar-light bg-light px-4">
+      <Link className="navbar-brand" to="/">HealthCare</Link>
+      
       <button
         className="navbar-toggler"
         type="button"
@@ -46,7 +65,7 @@ const Navbar = () => {
             <Link className="nav-link" to="/">Home</Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to="/employees">Services</Link>
+            <Link className="nav-link" to="/employees">Employees</Link>
           </li>
           <li className="nav-item">
             <Link className="nav-link" to="/contact">Contact Us</Link>
@@ -54,48 +73,69 @@ const Navbar = () => {
         </ul>
       </div>
 
-      <div className="d-flex align-items-center">
-        <Link className="nav-link me-3 cart-icon" to="/cart">
-          <BsCart size={22} />
-        </Link>
-
-        {role ? (
+      <div className="ms-auto d-flex align-items-center">
+        {userType ? (
           <div className="dropdown">
-            <BsPersonCircle size={24} className="profile-icon dropdown-toggle" data-bs-toggle="dropdown" />
-            <ul className="dropdown-menu dropdown-menu-end">
+            <button
+              type="button"
+              className="btn btn-link nav-link d-flex align-items-center gap-2"
+              id="profileDropdown"
+              data-bs-toggle="dropdown"
+              data-bs-auto-close="true"
+              aria-expanded="false"
+            >
+              <BsPersonCircle size={24} />
+              <span>{userName}</span>
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
               <li>
-                {role === "user" && <Link className="dropdown-item" to="/user-dashboard">Dashboard</Link>}
-                {role === "instructor" && <Link className="dropdown-item" to="/instructor-dashboard">Dashboard</Link>}
-                {role === "seller" && <Link className="dropdown-item" to="/seller-dashboard">Dashboard</Link>}
+                <Link className="dropdown-item" to={getDashboardLink()}>
+                  Dashboard
+                </Link>
               </li>
+              <li><hr className="dropdown-divider" /></li>
               <li>
-                <button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button>
+                <button className="dropdown-item text-danger" onClick={handleLogout}>
+                  Logout
+                </button>
               </li>
             </ul>
           </div>
         ) : (
           <div className="dropdown">
             <button
-              className="btn btn-outline-primary dropdown-toggle"
               type="button"
+              className="btn btn-primary dropdown-toggle"
+              id="loginDropdown"
               data-bs-toggle="dropdown"
+              data-bs-auto-close="true"
+              aria-expanded="false"
             >
-              Login / Signup
+              Login
             </button>
-            <ul className="dropdown-menu dropdown-menu-end">
+            <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
               <li>
-                <button className="dropdown-item" onClick={() => navigate("/patient-login")}>
-                  Login as User
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => navigate("/patient-login")}
+                >
+                  Patient Login
                 </button>
               </li>
               <li>
-                <button className="dropdown-item" onClick={() => navigate("/employee-login")}>
-                  Login as Employee
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => navigate("/employee-login")}
+                >
+                  Employee Login
                 </button>
               </li>
               <li>
-                <button className="dropdown-item" onClick={() => navigate("/seller-login")}>
-                  Login as Seller
+                <button 
+                  className="dropdown-item" 
+                  onClick={() => navigate("/admin-login")}
+                >
+                  Admin Login
                 </button>
               </li>
             </ul>

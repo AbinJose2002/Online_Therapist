@@ -27,30 +27,38 @@ const Plogin = () => {
         setLoading(true);
 
         try {
-            console.log(formData)
-            const endpoint = isRegistering ? "/api/patient/register" : "/api/patient/login";
-            const response = await fetch(`http://localhost:8080${endpoint}`, {
+            const baseUrl = 'http://localhost:8080/api/patient';
+            const endpoint = isRegistering ? '/register' : '/login';
+            
+            const response = await fetch(`${baseUrl}${endpoint}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify(formData),
             });
 
             const data = await response.json();
-            setLoading(false);
             
             if (!response.ok) {
-                setMessage({ type: "danger", text: data.message || "Something went wrong" });
-                return;
+                throw new Error(data.message || 'Something went wrong');
             }
 
-            setMessage({ type: "success", text: data.message });
-            if (!isRegistering) {
+            if (data.token) {
                 localStorage.setItem("patientToken", data.token);
+                localStorage.setItem("patientInfo", JSON.stringify(data.user));
                 window.location.href = "/patient-dashboard";
+            } else if (isRegistering) {
+                setIsRegistering(false);
+                setMessage({ type: "success", text: "Registration successful! Please login." });
             }
         } catch (error) {
+            setMessage({ 
+                type: "danger", 
+                text: error.message || "Server error. Try again later." 
+            });
+        } finally {
             setLoading(false);
-            setMessage({ type: "danger", text: "Server error. Try again later." });
         }
     };
 

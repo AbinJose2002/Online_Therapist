@@ -2,9 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import Appoitment from "./Appoitment";
+// import Appoitment from "./Appoitment";
+import Appointments from './Appointments';
 import Patient from "./Patient"
 import Profle from './Profle';
+import Review from './Review'
 // import Navbar from '../../Navbar/Navbar'
 
 const Home = () => {
@@ -21,13 +23,13 @@ const Home = () => {
                     {(() => {
     switch (selected) {
         case 'appointment':
-            return <Appoitment />;  // Added return
+            return <Appointments />;  // Added return
         case 'profile':
             return <Profle />;
         case 'patient':
             return <Patient />;
-        // case 'document':
-        //     return <Document />;
+        case 'review':
+            return <Review />;
         // case 'consult':
         //     return <Consultation />;
         // default:

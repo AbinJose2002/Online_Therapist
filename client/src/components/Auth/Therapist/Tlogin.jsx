@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from 'axios';
 
 const Tlogin = () => {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -19,10 +20,19 @@ const Tlogin = () => {
 
   const [message, setMessage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const toggleForm = () => setIsRegistering(!isRegistering);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
@@ -31,29 +41,58 @@ const Tlogin = () => {
     setLoading(true);
 
     try {
-      const endpoint = isRegistering ? "/api/employee/register" : "/api/employee/login";
-      const response = await fetch(`http://localhost:8080${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      if (isRegistering) {
+        if (!image) {
+          setMessage({ type: "danger", text: "Please select a profile image" });
+          setLoading(false);
+          return;
+        }
 
-      const data = await response.json();
-      setLoading(false);
-      alert("Login Success")
-      if (!response.ok) {
-        setMessage({ type: "danger", text: data.message || "Something went wrong" });
-        return;
-      }
-      
-      setMessage({ type: "success", text: data.message });
-      if (!isRegistering) {
+        const formDataWithImage = new FormData();
+        Object.keys(formData).forEach(key => {
+          formDataWithImage.append(key, formData[key]);
+        });
+        formDataWithImage.append('image', image);
+
+        const response = await axios.post(
+          'http://localhost:8080/api/employee/register',
+          formDataWithImage,
+          {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          }
+        );
+
+        if (response.data) {
+          setMessage({ type: "success", text: "Registration successful" });
+          alert("Registration Success");
+          window.location.href = "/employee-login";
+        }
+      } else {
+        const endpoint = "/api/employee/login";
+        const response = await fetch(`http://localhost:8080${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+        setLoading(false);
+        alert("Login Success")
+        if (!response.ok) {
+          setMessage({ type: "danger", text: data.message || "Something went wrong" });
+          return;
+        }
+        
+        setMessage({ type: "success", text: data.message });
         localStorage.setItem("empToken", data.token);
+        window.location.href = "/employee-dashboard";
       }
-      window.location.href = "/employee-dashboard";
     } catch (error) {
       setLoading(false);
-      setMessage({ type: "danger", text: "Server error. Try again later." });
+      setMessage({ 
+        type: "danger", 
+        text: error.response?.data?.message || "Server error. Try again later." 
+      });
     }
   };
 
@@ -109,19 +148,26 @@ const Tlogin = () => {
                     <label>Consultation Fee ($)</label>
                     <input type="number" className="form-control" name="fee" value={formData.fee} onChange={handleChange} required />
                   </div>
+                  <div className="mb-3">
+                    <label>Profile Photo</label>
+                    <input 
+                      type="file" 
+                      className="form-control" 
+                      accept="image/*"
+                      onChange={handleImageChange} 
+                      required 
+                    />
+                    {imagePreview && (
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="mt-2 rounded-circle"
+                        style={{ width: '100px', height: '100px', objectFit: 'cover' }} 
+                      />
+                    )}
+                  </div>
                 </>
               )}
-
-              {/* {!isRegistering && (
-                <div className="mb-3">
-                  <label>Type of Service</label>
-                  <select className="form-control" name="loginServiceType" value={formData.loginServiceType} onChange={handleChange} required>
-                    <option value="">Select...</option>
-                    <option value="Therapist">Therapist</option>
-                    <option value="Home Nurse">Home Nurse</option>
-                  </select>
-                </div>
-              )} */}
 
               <div className="mb-3">
                 <label>Email</label>

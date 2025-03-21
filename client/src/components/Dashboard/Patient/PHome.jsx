@@ -2,9 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
-// import Appoitment from "./Appoitment";
+import Appoitment from "./Appointment"
+import Reviews from "./Reviews";
+import Appointment from './Appointment';
+import MyTherapists from './MyTherapists';
+import MyAppointments from './MyAppointments';
 // import Patient from "./Patient"
-// import Profle from './Profle';
+import Profile from './Profile';
 // import Navbar from '../../Navbar/Navbar'
 
 const Home = () => {
@@ -20,16 +24,16 @@ const Home = () => {
                     {/* <h2>Selected: {selected}</h2> Display the selected link */}
                     {(() => {
     switch (selected) {
-        // case 'appointment':
-        //     return <Appoitment />;  // Added return
-        // case 'profile':
-        //     return <Profle />;
+        case 'appointment':
+            return <MyAppointments />;  // Added return
+        case 'book':
+            return <Appointment />;
         // case 'patient':
             // return <Patient />;
-        // case 'document':
-        //     return <Document />;
-        // case 'consult':
-        //     return <Consultation />;
+        case 'profile':
+            return <Profile />;
+        case 'review':
+            return <MyTherapists />;
         // default:
         //     return <Case />;
     }

@@ -19,19 +19,23 @@ const Sidebar = ({ setSelected }) => {
             </button>
             <h3 style={{ display: isCollapsed ? 'none' : 'block' }}>Dashboard</h3>
             <ul>
+                <li onClick={() => setSelected('book')}>
+                    <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
+                    <Link  style={{ display: isCollapsed ? 'none' : 'block' }}>Book Appointment</Link>
+                </li>
                 <li onClick={() => setSelected('appointment')}>
                     <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
                     <Link  style={{ display: isCollapsed ? 'none' : 'block' }}>Appointment Details</Link>
                 </li>
-                <li onClick={() => setSelected('patient')}>
+                {/* <li onClick={() => setSelected('patient')}>
                     <FontAwesomeIcon icon={faMoneyBill} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
                     <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Patient Details</Link>
-                </li>
-                {/* <li onClick={() => setSelected('document')}>
+                </li> */}
+                <li onClick={() => setSelected('review')}>
                     <FontAwesomeIcon icon={faFolder} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
-                    <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Document</Link>
+                    <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Review</Link>
                 </li>
-                <li onClick={() => setSelected('consult')}>
+                {/* <li onClick={() => setSelected('consult')}>
                     <FontAwesomeIcon icon={faComments} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
                     <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Consult</Link>
                 </li> */}
