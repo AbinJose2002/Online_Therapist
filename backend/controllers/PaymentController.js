@@ -17,12 +17,13 @@ const createPaymentIntent = async (req, res) => {
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to smallest currency unit
+      amount: Math.round(amount * 100),
       currency: 'inr',
       payment_method_types: ['card'],
       metadata: {
-        userId: req.user?.id,
-        integration_check: 'accept_a_payment',
+        userId: req.user.id,
+        integration: 'react',
+        type: 'appointment_booking'
       }
     });
 
@@ -35,7 +36,6 @@ const createPaymentIntent = async (req, res) => {
     console.error('Stripe error:', error);
     res.status(error.statusCode || 500).json({
       message: error.message || "Payment initialization failed",
-      error: process.env.NODE_ENV === 'development' ? error : undefined
     });
   }
 };

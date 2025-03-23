@@ -3,6 +3,20 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { FiMapPin, FiFilter, FiUsers } from 'react-icons/fi'
 
+// Add default avatar base64 image near the top of the file
+const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTAiIGhlaWdodD0iMjUwIiB2aWV3Qm94PSIwIDAgMjUwIDI1MCI+PHJlY3Qgd2lkdD0iMTAwJSIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNlZWUiLz48cGF0aCBkPSJNMTI1IDgwYTQwIDQwIDAgMSAwIDAgODAgNDAgNDAgMCAwIDAgMC04MHptMCAxMDBhNjAgNjAgMCAwIDE1Mi0zMGMwLTIwIDM1LTMxIDUyLTMxIDE3IDAgNTIgMTEgNTIgMzFhNjAgNjAgMCAwIDEtNTIgMzB6IiBmaWxsPSIjOTk5Ii8+PC9zdmc+';
+
+// Add getImageUrl helper function
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return defaultAvatar;
+  try {
+    return `http://localhost:8080/${imagePath.replace(/^\/+/, '')}`;
+  } catch (error) {
+    console.error('Error processing image path:', error);
+    return defaultAvatar;
+  }
+};
+
 export default function Employees() {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
@@ -114,13 +128,13 @@ export default function Employees() {
               <div className="card h-100 border-0 shadow-sm hover-card">
                 <div className="position-relative">
                   <img 
-                    src={`http://localhost:8080/uploads/${employee.image}`}
+                    src={getImageUrl(employee.image)}
                     className="card-img-top"
                     alt={`${employee.firstName} ${employee.lastName}`}
                     style={{ height: '250px', objectFit: 'cover' }}
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = 'https://via.placeholder.com/250x250?text=No+Image';
+                      e.target.src = defaultAvatar;
                     }}
                   />
                   <div className="position-absolute top-0 end-0 m-3">

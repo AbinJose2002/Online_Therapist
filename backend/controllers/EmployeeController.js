@@ -1,19 +1,18 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Employee = require("../models/EmployeeModel.js")
+const path = require('path');
+const Employee = require("../models/EmployeeModel.js");
 const Review = require('../models/ReviewModel.js');
 
 const register = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log('Registration request body:', req.body);
     const { firstName, lastName, email, password, number, serviceType, description, experience, location, fee } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ message: "Profile image is required" });
+    // Check if image paths exist in body
+    if (!req.body.image || !req.body.verificationDocument) {
+      return res.status(400).json({ message: "Both profile image and verification document are required" });
     }
-
-    // Update image path to be relative to uploads directory
-    const image = req.file.filename;
 
     // Check if the user already exists
     const existingUser = await Employee.findOne({ email });
@@ -24,7 +23,11 @@ const register = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
+    // Clean up image paths - remove any duplicate /uploads and leading slashes
+    const imagePath = req.body.image.replace(/^\/?(uploads\/)?/, '');
+    const docPath = req.body.verificationDocument.replace(/^\/?(uploads\/)?/, '');
+
+    // Create new user with both files
     const newUser = new Employee({
       firstName,
       lastName,
@@ -36,13 +39,26 @@ const register = async (req, res) => {
       experience,
       location,
       fee,
-      image: image // Store just the filename
+      image: imagePath,
+      verificationDocument: docPath
     });
 
     await newUser.save();
-    res.status(201).json({ message: "Registration successful", user: newUser });
+    res.status(201).json({ 
+      success: true,
+      message: "Registration successful", 
+      user: {
+        ...newUser.toObject(),
+        password: undefined
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error('Registration error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: "Server error", 
+      error: error.message 
+    });
   }
 };
 
@@ -110,9 +126,19 @@ const getEmployees = async (req, res) => {
 
     const employeesWithImageUrls = employees.map(emp => {
       const employee = emp.toObject();
+
+      // Standardize image path handling
+      const getAssetPath = (filePath) => {
+        if (!filePath) return null;
+        // Remove any leading slashes and duplicate 'uploads'
+        const cleanPath = filePath.replace(/^\/+/, '').replace(/^uploads\/+/, '');
+        return `/uploads/${cleanPath}`;
+      };
+
       return {
         ...employee,
-        image: employee.image // Keep the original image filename
+        image: getAssetPath(employee.image),
+        verificationDocument: getAssetPath(employee.verificationDocument)
       };
     });
 

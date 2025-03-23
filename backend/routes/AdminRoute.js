@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getAnalytics } = require('../controllers/AdminController.js');
+const { register, login, getAnalytics, getDashboardStats } = require('../controllers/AdminController.js');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Debug middleware
@@ -15,5 +15,6 @@ router.post('/login', login);
 
 // Protected routes
 router.get('/analytics', authMiddleware, getAnalytics);
+router.get('/dashboard-stats', authMiddleware, getDashboardStats);
 
 module.exports = router;

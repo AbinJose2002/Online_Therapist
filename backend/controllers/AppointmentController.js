@@ -162,11 +162,64 @@ const getBookedSlots = async (req, res) => {
   }
 };
 
+const getTherapistBookings = async (req, res) => {
+  try {
+    // Aggregate pipeline to get booking statistics for each therapist
+    const therapistBookings = await Appointment.aggregate([
+      {
+        $group: {
+          _id: '$employeeId',
+          totalBookings: { $sum: 1 },
+          pendingBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'pending'] }, 1, 0] }
+          },
+          confirmedBookings: {
+            $sum: { $cond: [{ $eq: ['$status', 'confirmed'] }, 1, 0] }
+          }
+        }
+      },
+      {
+        $lookup: {
+          from: 'employees',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'therapistInfo'
+        }
+      },
+      {
+        $unwind: '$therapistInfo'
+      },
+      {
+        $project: {
+          therapistId: '$_id',
+          firstName: '$therapistInfo.firstName',
+          lastName: '$therapistInfo.lastName',
+          serviceType: '$therapistInfo.serviceType',
+          totalBookings: 1,
+          pendingBookings: 1,
+          confirmedBookings: 1,
+          isActive: true
+        }
+      }
+    ]);
+
+    res.status(200).json(therapistBookings);
+  } catch (error) {
+    console.error('Error in getTherapistBookings:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch therapist bookings',
+      error: error.message 
+    });
+  }
+};
+
 module.exports = { 
   createAppointment, 
   getEmployees, 
   getPatientAppointments,
   getEmployeeAppointments,
   acceptAppointment,
-  getBookedSlots 
+  getBookedSlots,
+  getTherapistBookings 
 };

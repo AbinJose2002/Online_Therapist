@@ -23,7 +23,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import CheckoutForm from '../../Payment/CheckoutForm';
+import { default as CheckoutForm } from '../../Payment/CheckoutForm';
 import Reviews from './Reviews';  // Update this line to use a default import
 
 const timeSlots = [
@@ -308,7 +308,7 @@ const Appointment = () => {
   
       console.log('Sending booking data:', bookingData);
   
-      const response = await fetch('http://localhost:8080/api/appointments/create', {
+      const response = await fetch('http://localhost:8080/api/appointments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -515,7 +515,9 @@ const Appointment = () => {
               stripe={stripePromise} 
               options={{
                 clientSecret: paymentIntent,
-                appearance: { theme: 'stripe' }
+                appearance: { theme: 'stripe' },
+                loader: 'auto',
+                paymentMethodCreation: 'manual'
               }}
             >
               <CheckoutForm 

@@ -23,18 +23,28 @@ import {
   ChevronLeft,
   Dashboard,
   Logout as LogoutIcon,
+  EventNote,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import EmployeeList from './EmployeeList';
 import PatientList from './PatientList';
 import Analytics from './Analytics';
+import TherapistBookings from './TherapistBookings';
+import WelcomeDashboard from './WelcomeDashboard';
 
 const drawerWidth = 240;
 
+const pageVariants = {
+  initial: { opacity: 0, x: -10 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 10 }
+};
+
 const AdminDashboard = () => {
   const [open, setOpen] = useState(true);
-  const [selectedView, setSelectedView] = useState('employees');
+  const [selectedView, setSelectedView] = useState('dashboard');
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -49,23 +59,42 @@ const AdminDashboard = () => {
   };
 
   const menuItems = [
+    { text: 'Dashboard', icon: <Dashboard />, value: 'dashboard' },
     { text: 'Employees', icon: <People />, value: 'employees' },
     { text: 'Patients', icon: <PersonAdd />, value: 'patients' },
     { text: 'Analytics', icon: <BarChart />, value: 'analytics' },
+    { text: 'Therapist Bookings', icon: <EventNote />, value: 'therapist-bookings' },
   ];
 
-  const renderContent = () => {
-    switch (selectedView) {
-      case 'employees':
-        return <EmployeeList />;
-      case 'patients':
-        return <PatientList />;
-      case 'analytics':
-        return <Analytics />;
-      default:
-        return <EmployeeList />;
-    }
-  };
+  const renderContent = () => (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={selectedView}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        transition={{ duration: 0.2 }}
+      >
+        {(() => {
+          switch (selectedView) {
+            case 'dashboard':
+              return <WelcomeDashboard />;
+            case 'employees':
+              return <EmployeeList />;
+            case 'patients':
+              return <PatientList />;
+            case 'analytics':
+              return <Analytics />;
+            case 'therapist-bookings':
+              return <TherapistBookings />;
+            default:
+              return <WelcomeDashboard />;
+          }
+        })()}
+      </motion.div>
+    </AnimatePresence>
+  );
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -129,6 +158,9 @@ const AdminDashboard = () => {
               <ListItem
                 button
                 key={item.text}
+                component={motion.div}
+                whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedView(item.value)}
                 selected={selectedView === item.value}
                 sx={{

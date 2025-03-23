@@ -22,6 +22,8 @@ const Tlogin = () => {
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [document, setDocument] = useState(null);
+  const [documentName, setDocumentName] = useState('');
 
   const toggleForm = () => setIsRegistering(!isRegistering);
 
@@ -35,6 +37,12 @@ const Tlogin = () => {
     setImagePreview(URL.createObjectURL(file));
   };
 
+  const handleDocumentChange = (e) => {
+    const file = e.target.files[0];
+    setDocument(file);
+    setDocumentName(file.name);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage(null);
@@ -42,8 +50,8 @@ const Tlogin = () => {
 
     try {
       if (isRegistering) {
-        if (!image) {
-          setMessage({ type: "danger", text: "Please select a profile image" });
+        if (!image || !document) {
+          setMessage({ type: "danger", text: "Please select both profile image and verification document" });
           setLoading(false);
           return;
         }
@@ -53,6 +61,7 @@ const Tlogin = () => {
           formDataWithImage.append(key, formData[key]);
         });
         formDataWithImage.append('image', image);
+        formDataWithImage.append('verificationDocument', document);
 
         const response = await axios.post(
           'http://localhost:8080/api/employee/register',
@@ -164,6 +173,21 @@ const Tlogin = () => {
                         className="mt-2 rounded-circle"
                         style={{ width: '100px', height: '100px', objectFit: 'cover' }} 
                       />
+                    )}
+                  </div>
+                  <div className="mb-3">
+                    <label>Verification Document (PDF/Image)</label>
+                    <input 
+                      type="file" 
+                      className="form-control" 
+                      accept=".pdf,image/*"
+                      onChange={handleDocumentChange} 
+                      required 
+                    />
+                    {documentName && (
+                      <div className="mt-2">
+                        <small>Selected document: {documentName}</small>
+                      </div>
                     )}
                   </div>
                 </>

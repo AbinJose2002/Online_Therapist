@@ -4,6 +4,7 @@ const Admin = require('../models/AdminModel.js');
 const Appointment = require('../models/AppointmentModel.js');
 const Employee = require('../models/EmployeeModel.js');
 const Patient = require('../models/PatientModel.js');
+const Review = require('../models/ReviewModel.js');
 
 const register = async (req, res) => {
   try {
@@ -149,4 +150,38 @@ const getAnalytics = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getAnalytics };
+const getDashboardStats = async (req, res) => {
+  try {
+    const [
+      totalEmployees,
+      totalPatients,
+      totalAppointments,
+      averageRating
+    ] = await Promise.all([
+      Employee.countDocuments(),
+      Patient.countDocuments(),
+      Appointment.countDocuments(),
+      Review.aggregate([
+        { $group: { 
+          _id: null, 
+          averageRating: { $avg: "$rating" } 
+        }}
+      ])
+    ]);
+
+    res.status(200).json({
+      totalEmployees,
+      totalPatients,
+      totalAppointments,
+      averageRating: averageRating[0]?.averageRating || 0
+    });
+  } catch (error) {
+    console.error('Dashboard stats error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch dashboard statistics' 
+    });
+  }
+};
+
+module.exports = { register, login, getAnalytics, getDashboardStats };

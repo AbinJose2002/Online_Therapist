@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const fs = require('fs');
 const employeeRoutes = require('./routes/EmployeeRoute');
 const adminRoutes = require('./routes/AdminRoute');
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -44,8 +45,17 @@ mongoose.connection.on('error', (err) => {
   console.log('Error connecting to MongoDB:', err);
 });
 
-// Static files
+// Middleware for file uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Configure multer directories
+const imageDir = 'uploads/images';
+const documentDir = 'uploads/documents';
+[imageDir, documentDir].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
 
 // Routes
 app.use('/api/admin', adminRoutes);
@@ -54,12 +64,13 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);
 
-// Error handling
+// Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Server Error:', err);
   res.status(err.status || 500).json({
-    message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { error: err.stack })
+    success: false,
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
