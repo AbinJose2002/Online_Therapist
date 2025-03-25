@@ -7,6 +7,7 @@ import Appointments from './Appointments';
 import Patient from "./Patient"
 import Profle from './Profle';
 import Review from './Review'
+import ReportPatientWarning from './ReportPatientWarning';
 // import Navbar from '../../Navbar/Navbar'
 
 const Home = () => {
@@ -30,8 +31,8 @@ const Home = () => {
             return <Patient />;
         case 'review':
             return <Review />;
-        // case 'consult':
-        //     return <Consultation />;
+        case 'warn':
+            return <ReportPatientWarning />;
         // default:
         //     return <Case />;
     }

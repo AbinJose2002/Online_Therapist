@@ -9,6 +9,7 @@ import MyTherapists from './MyTherapists';
 import MyAppointments from './MyAppointments';
 // import Patient from "./Patient"
 import Profile from './Profile';
+import ReportWarning from './ReportWarning';
 // import Navbar from '../../Navbar/Navbar'
 
 const Home = () => {
@@ -28,8 +29,8 @@ const Home = () => {
             return <MyAppointments />;  // Added return
         case 'book':
             return <Appointment />;
-        // case 'patient':
-            // return <Patient />;
+        case 'warn':
+            return <ReportWarning />;
         case 'profile':
             return <Profile />;
         case 'review':

@@ -12,9 +12,14 @@ import {
   Alert,
   Stack,
   Chip,
-  Button
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  Box // Add Box to imports
 } from '@mui/material';
-import { Description as DocIcon } from '@mui/icons-material';
+import { Description as DocIcon, Close as CloseIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 
 // Add default avatar base64 image
@@ -69,6 +74,17 @@ const EmployeeList = () => {
       setError('Failed to fetch employees');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getDocumentUrl = (docPath) => {
+    if (!docPath) return null;
+    try {
+      const cleanPath = docPath.replace(/^\/+/, '');
+      return `http://localhost:8080/${cleanPath}`;
+    } catch (error) {
+      console.error('Error processing document path:', error);
+      return null;
     }
   };
 
@@ -165,6 +181,64 @@ const EmployeeList = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog
+        open={!!selectedDocument}
+        onClose={() => setSelectedDocument(null)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Verification Document
+          <IconButton
+            aria-label="close"
+            onClick={() => setSelectedDocument(null)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {selectedDocument && (
+            <Box sx={{ width: '100%', minHeight: '600px', display: 'flex', justifyContent: 'center' }}>
+              {selectedDocument.toLowerCase().endsWith('.pdf') ? (
+                <object
+                  data={getDocumentUrl(selectedDocument)}
+                  type="application/pdf"
+                  width="100%"
+                  height="600px"
+                >
+                  <embed
+                    src={getDocumentUrl(selectedDocument)}
+                    type="application/pdf"
+                    width="100%"
+                    height="600px"
+                  />
+                </object>
+              ) : (
+                <img
+                  src={getDocumentUrl(selectedDocument)}
+                  alt="Verification Document"
+                  style={{ 
+                    maxWidth: '100%',
+                    maxHeight: '600px',
+                    objectFit: 'contain'
+                  }}
+                  onError={(e) => {
+                    console.error('Document load error');
+                    e.target.alt = 'Error loading document';
+                  }}
+                />
+              )}
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
     </Paper>
   );
 };

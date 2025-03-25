@@ -5,6 +5,7 @@ const Appointment = require('../models/AppointmentModel.js');
 const Employee = require('../models/EmployeeModel.js');
 const Patient = require('../models/PatientModel.js');
 const Review = require('../models/ReviewModel.js');
+const Warning = require('../models/WarningModel'); // Add this import at the top with other imports
 
 const register = async (req, res) => {
   try {
@@ -184,4 +185,93 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getAnalytics, getDashboardStats };
+const getPatientWarnings = async (req, res) => {
+  try {
+    const warnings = await Warning.find()
+      .populate('patientId', 'firstName lastName')
+      .populate('employeeId', 'firstName lastName')
+      .sort('-createdAt');
+
+    res.status(200).json(warnings);
+  } catch (error) {
+    console.error('Error fetching patient warnings:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch patient warnings',
+      error: error.message 
+    });
+  }
+};
+
+const getEmployeeWarnings = async (req, res) => {
+  try {
+    const warnings = await Warning.find()
+      .populate({
+        path: 'employeeId',
+        select: 'firstName lastName isDisabled disabledUntil'
+      })
+      .populate('patientId', 'firstName lastName')
+      .sort('-createdAt');
+
+    // Filter out warnings with null employeeId or patientId
+    const validWarnings = warnings.filter(w => w.employeeId && w.patientId);
+    res.status(200).json(validWarnings);
+  } catch (error) {
+    console.error('Error fetching employee warnings:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch employee warnings',
+      error: error.message 
+    });
+  }
+};
+
+const toggleEmployeeStatus = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const { disableDuration } = req.body;
+
+    const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    employee.isDisabled = !employee.isDisabled;
+    employee.disabledUntil = employee.isDisabled 
+      ? new Date(Date.now() + (disableDuration * 24 * 60 * 60 * 1000))
+      : null;
+
+    await employee.save();
+
+    // Fetch updated warnings to return to client
+    const updatedWarnings = await Warning.find()
+      .populate({
+        path: 'employeeId',
+        select: 'firstName lastName isDisabled disabledUntil'
+      })
+      .populate('patientId', 'firstName lastName')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      warnings: updatedWarnings
+    });
+  } catch (error) {
+    console.error('Toggle status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to toggle employee status',
+      error: error.message
+    });
+  }
+};
+
+module.exports = { 
+  register, 
+  login, 
+  getAnalytics, 
+  getDashboardStats, 
+  getPatientWarnings, 
+  getEmployeeWarnings,
+  toggleEmployeeStatus
+};

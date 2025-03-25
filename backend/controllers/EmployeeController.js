@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const path = require('path');
 const Employee = require("../models/EmployeeModel.js");
 const Review = require('../models/ReviewModel.js');
+const Appointment = require('../models/AppointmentModel');
 
 const register = async (req, res) => {
   try {
@@ -67,11 +68,32 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if user exists
-    const user = await Employee.findOne({ email});
+    const user = await Employee.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // Check if user is banned
+    if (user.isDisabled) {
+      const now = new Date();
+      const disabledUntil = new Date(user.disabledUntil);
+      
+      if (now < disabledUntil) {
+        const daysLeft = Math.ceil((disabledUntil - now) / (1000 * 60 * 60 * 24));
+        return res.status(403).json({ 
+          message: `Your account has been temporarily disabled. ${daysLeft} days remaining before reactivation.`,
+          isDisabled: true,
+          disabledUntil: user.disabledUntil
+        });
+      } else {
+        // If ban period is over, automatically enable the account
+        user.isDisabled = false;
+        user.disabledUntil = null;
+        await user.save();
+      }
+    }
+
+    // Continue with login if not banned
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
@@ -199,4 +221,31 @@ const getEmployeeReviews = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getEmployees, getLocalities, getServiceTypes, getEmployeeProfile, updateEmployeeProfile, getEmployeeReviews };
+const getMyPatients = async (req, res) => {
+  try {
+    const employeeId = req.user.id;
+    
+    const appointments = await Appointment.find({
+      employeeId,
+      status: { $in: ['confirmed', 'pending'] }
+    }).populate('patientId');
+
+    // Extract unique patients
+    const uniquePatients = [...new Map(
+      appointments
+        .filter(apt => apt.patientId) // Filter out null patientIds
+        .map(apt => [apt.patientId._id.toString(), apt.patientId])
+    ).values()];
+
+    res.status(200).json(uniquePatients);
+  } catch (error) {
+    console.error('Error getting my patients:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch patients',
+      error: error.message 
+    });
+  }
+};
+
+module.exports = { register, login, getEmployees, getLocalities, getServiceTypes, getEmployeeProfile, updateEmployeeProfile, getEmployeeReviews, getMyPatients };

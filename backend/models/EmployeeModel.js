@@ -14,6 +14,18 @@ const EmployeeSchema = new mongoose.Schema({
   image: { type: String, required: true },
   verificationDocument: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
+  warningCount: {
+    type: Number,
+    default: 0
+  },
+  isDisabled: {
+    type: Boolean,
+    default: false
+  },
+  disabledUntil: {
+    type: Date,
+    default: null
+  }
 });
 
 const Employee = mongoose.model("Employee", EmployeeSchema);

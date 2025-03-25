@@ -24,6 +24,8 @@ import {
   Dashboard,
   Logout as LogoutIcon,
   EventNote,
+  Warning,
+  ReportProblem,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,6 +35,8 @@ import PatientList from './PatientList';
 import Analytics from './Analytics';
 import TherapistBookings from './TherapistBookings';
 import WelcomeDashboard from './WelcomeDashboard';
+import PatientWarnings from './PatientWarnings';
+import EmployeeWarnings from './EmployeeWarnings';
 
 const drawerWidth = 240;
 
@@ -64,6 +68,8 @@ const AdminDashboard = () => {
     { text: 'Patients', icon: <PersonAdd />, value: 'patients' },
     { text: 'Analytics', icon: <BarChart />, value: 'analytics' },
     { text: 'Therapist Bookings', icon: <EventNote />, value: 'therapist-bookings' },
+    { text: 'Patient Reports', icon: <Warning />, value: 'patient-warnings' },
+    { text: 'Employee Reports', icon: <ReportProblem />, value: 'employee-warnings' },
   ];
 
   const renderContent = () => (
@@ -88,6 +94,10 @@ const AdminDashboard = () => {
               return <Analytics />;
             case 'therapist-bookings':
               return <TherapistBookings />;
+            case 'patient-warnings':
+              return <PatientWarnings />;
+            case 'employee-warnings':
+              return <EmployeeWarnings />;
             default:
               return <WelcomeDashboard />;
           }

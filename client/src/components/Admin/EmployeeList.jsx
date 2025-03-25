@@ -12,6 +12,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Box,  // Add Box import
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 

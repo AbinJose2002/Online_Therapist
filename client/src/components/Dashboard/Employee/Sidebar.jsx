@@ -31,10 +31,10 @@ const Sidebar = ({ setSelected }) => {
                     <FontAwesomeIcon icon={faFolder} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
                     <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Review</Link>
                 </li>
-                {/* <li onClick={() => setSelected('consult')}>
+                <li onClick={() => setSelected('warn')}>
                     <FontAwesomeIcon icon={faComments} style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
-                    <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Consult</Link>
-                </li> */}
+                    <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Report Patient</Link>
+                </li>
                 <li onClick={() => setSelected('profile')}>
                     <FontAwesomeIcon icon={faUser } style={{ marginRight: '10px', display: isCollapsed ? 'none' : 'block' }} />
                     <Link style={{ display: isCollapsed ? 'none' : 'block' }}>Profile</Link>

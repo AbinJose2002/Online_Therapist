@@ -11,7 +11,8 @@ const {
   getServiceTypes, 
   getEmployeeProfile, 
   updateEmployeeProfile, 
-  getEmployeeReviews 
+  getEmployeeReviews,
+  getMyPatients
 } = require('../controllers/EmployeeController.js');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -98,6 +99,9 @@ userRouter.post('/register', (req, res) => {
 });
 
 userRouter.post('/login', login);
+
+// Add new route for getting employee's patients
+userRouter.get('/my-patients', authMiddleware, getMyPatients);
 
 // Protected routes
 userRouter.get('/profile', authMiddleware, getEmployeeProfile);
