@@ -188,11 +188,16 @@ const getDashboardStats = async (req, res) => {
 const getPatientWarnings = async (req, res) => {
   try {
     const warnings = await Warning.find()
-      .populate('patientId', 'firstName lastName')
+      .populate({
+        path: 'patientId',
+        select: 'firstName lastName isDisabled disabledUntil'
+      })
       .populate('employeeId', 'firstName lastName')
       .sort('-createdAt');
 
-    res.status(200).json(warnings);
+    // Filter out warnings with null employeeId or patientId
+    const validWarnings = warnings.filter(w => w.employeeId && w.patientId);
+    res.status(200).json(validWarnings);
   } catch (error) {
     console.error('Error fetching patient warnings:', error);
     res.status(500).json({ 
@@ -266,6 +271,46 @@ const toggleEmployeeStatus = async (req, res) => {
   }
 };
 
+const togglePatientStatus = async (req, res) => {
+  try {
+    const { patientId } = req.params;
+    const { disableDuration } = req.body;
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      return res.status(404).json({ message: 'Patient not found' });
+    }
+
+    patient.isDisabled = !patient.isDisabled;
+    patient.disabledUntil = patient.isDisabled 
+      ? new Date(Date.now() + (disableDuration * 24 * 60 * 60 * 1000))
+      : null;
+
+    await patient.save();
+
+    // Fetch updated warnings to return to client
+    const updatedWarnings = await Warning.find()
+      .populate({
+        path: 'patientId',
+        select: 'firstName lastName isDisabled disabledUntil'
+      })
+      .populate('employeeId', 'firstName lastName')
+      .sort('-createdAt');
+
+    res.status(200).json({
+      success: true,
+      warnings: updatedWarnings
+    });
+  } catch (error) {
+    console.error('Toggle status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to toggle patient status',
+      error: error.message
+    });
+  }
+};
+
 module.exports = { 
   register, 
   login, 
@@ -273,5 +318,6 @@ module.exports = {
   getDashboardStats, 
   getPatientWarnings, 
   getEmployeeWarnings,
-  toggleEmployeeStatus
+  toggleEmployeeStatus,
+  togglePatientStatus
 };

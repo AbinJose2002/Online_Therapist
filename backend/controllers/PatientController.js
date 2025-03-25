@@ -58,6 +58,26 @@ const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
+        // Check if user is banned
+        if (user.isDisabled) {
+            const now = new Date();
+            const disabledUntil = new Date(user.disabledUntil);
+            
+            if (now < disabledUntil) {
+                const daysLeft = Math.ceil((disabledUntil - now) / (1000 * 60 * 60 * 24));
+                return res.status(403).json({ 
+                    message: `Your account has been temporarily disabled. ${daysLeft} days remaining before reactivation.`,
+                    isDisabled: true,
+                    disabledUntil: user.disabledUntil
+                });
+            } else {
+                // If ban period is over, automatically enable the account
+                user.isDisabled = false;
+                user.disabledUntil = null;
+                await user.save();
+            }
+        }
+
         // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -66,7 +86,6 @@ const login = async (req, res) => {
 
         // Generate token
         const token = generateToken(user._id, user.email);
-        console.log(token)
         res.status(200).json({ message: "Login successful", token, user });
     } catch (error) {
         console.error("Login error:", error);
