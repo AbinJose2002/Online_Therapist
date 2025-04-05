@@ -41,17 +41,7 @@ const Plogin = () => {
             const data = await response.json();
             
             if (!response.ok) {
-                if (data.isDisabled) {
-                    setMessage({ 
-                        type: "error", 
-                        text: data.message,
-                        isDisabled: true,
-                        disabledUntil: new Date(data.disabledUntil)
-                    });
-                } else {
-                    throw new Error(data.message || 'Something went wrong');
-                }
-                return;
+                throw new Error(data.message || 'Something went wrong');
             }
 
             if (data.token) {
@@ -78,18 +68,7 @@ const Plogin = () => {
                 <div className="col-md-6">
                     <div className="card shadow-lg p-4">
                         <h2 className="text-center mb-4">{isRegistering ? "Patient Register" : "Patient Login"}</h2>
-                        {message && message.isDisabled ? (
-                            <div className="alert alert-danger text-center">
-                                <h4 className="alert-heading">Account Disabled</h4>
-                                <p>{message.text}</p>
-                                <hr />
-                                <p className="mb-0">
-                                    Account will be reactivated on: {new Date(message.disabledUntil).toLocaleDateString()}
-                                </p>
-                            </div>
-                        ) : message && (
-                            <div className={`alert alert-${message.type}`}>{message.text}</div>
-                        )}
+                        {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}
 
                         <form onSubmit={handleSubmit}>
                             {isRegistering && (

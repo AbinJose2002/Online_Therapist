@@ -32,14 +32,6 @@ const patientSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
-    },
-    isDisabled: {
-        type: Boolean,
-        default: false
-    },
-    disabledUntil: {
-        type: Date,
-        default: null
     }
 });
 

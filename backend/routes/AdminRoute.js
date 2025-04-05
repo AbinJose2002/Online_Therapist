@@ -7,8 +7,7 @@ const {
   getDashboardStats, 
   getPatientWarnings, 
   getEmployeeWarnings,
-  toggleEmployeeStatus,
-  togglePatientStatus 
+  toggleEmployeeStatus 
 } = require('../controllers/AdminController.js');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -28,6 +27,5 @@ router.get('/dashboard-stats', authMiddleware, getDashboardStats);
 router.get('/patient-warnings', authMiddleware, getPatientWarnings);
 router.get('/employee-warnings', authMiddleware, getEmployeeWarnings);
 router.put('/employees/:employeeId/toggle-status', authMiddleware, toggleEmployeeStatus);
-router.put('/patients/:patientId/toggle-status', authMiddleware, togglePatientStatus);
 
 module.exports = router;

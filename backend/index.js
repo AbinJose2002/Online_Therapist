@@ -10,6 +10,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const patientRoutes = require('./routes/PatientRoute');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const warningRoutes = require('./routes/warningRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 dotenv.config();
 
@@ -64,7 +65,8 @@ app.use('/api/employee', employeeRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/appointments', appointmentRoutes);
-app.use('/api/warnings', warningRoutes); // Add warning routes
+app.use('/api/warnings', warningRoutes);
+app.use('/api/ai', aiRoutes); // Add AI routes
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -214,6 +214,24 @@ const getTherapistBookings = async (req, res) => {
   }
 };
 
+const getAllEmployeeAppointments = async (req, res) => {
+  try {
+    const employeeId = req.user.id;
+    
+    const appointments = await Appointment.find({ employeeId })
+      .populate('patientId', 'firstName lastName email number')
+      .sort({ startDate: -1 }); // Sort by date descending (newest first)
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    console.error('Error fetching all appointments:', error);
+    res.status(500).json({ 
+      message: "Server error", 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = { 
   createAppointment, 
   getEmployees, 
@@ -221,5 +239,6 @@ module.exports = {
   getEmployeeAppointments,
   acceptAppointment,
   getBookedSlots,
-  getTherapistBookings 
+  getTherapistBookings,
+  getAllEmployeeAppointments
 };

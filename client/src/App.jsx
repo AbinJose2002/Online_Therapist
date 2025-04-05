@@ -12,28 +12,32 @@ import Contact from './components/Home/Contact'
 import AdminLogin from './components/Auth/Admin/AdminLogin';
 import AdminDashboard from './components/Dashboard/Admin/AdminDashboard';
 import PaymentSuccess from './components/Payment/PaymentSuccess';
+import Chatbot from './components/Chatbot/Chatbot';
+import Footer from './components/Footer/Footer';
 
-export default function App() {
+function App() {
   return (
-    <div>
-      <BrowserRouter> 
-      <Navbar />
-        <Routes>
-          <Route path='/' element={<Index />} />
-          <Route path='/employees' element={<Employees />} />
-          <Route path='/contact' element={<Contact />} />
+    <BrowserRouter>
+      <Navbar/>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/employees" element={<Employees />} />
+        <Route path="/contact" element={<Contact />} />
 
-          <Route path='/patient-login' element={<Plogin />} />
-          <Route path='/patient-dashboard' element={<PHome />} />
+        <Route path="/patient-login" element={<Plogin />} />
+        <Route path="/patient-dashboard/*" element={<PHome />} />
 
-          <Route path='/employee-login' element={<Tlogin />} />
-          <Route path='/employee-dashboard' element={<Home />} />
+        <Route path="/employee-login" element={<Tlogin />} />
+        <Route path="/employee-dashboard/*" element={<Home />} />
 
-          <Route path='/admin-login' element={<AdminLogin />} />
-          <Route path='/admin-dashboard' element={<AdminDashboard />} />
-          <Route path='/payment-success' element={<PaymentSuccess />} />
-        </Routes>
-      </BrowserRouter>
-    </div>
-  )
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/chatbot" element={<Chatbot />} />
+      </Routes>
+      <Footer />
+    </BrowserRouter>
+  );
 }
+
+export default App;

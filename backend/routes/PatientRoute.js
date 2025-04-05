@@ -11,7 +11,8 @@ const {
   getRemarks,
   addRemark,
   getMyTherapists,
-  getAllPatients
+  getAllPatients,
+  addReview  // Add this import
 } = require('../controllers/PatientController.js');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -28,7 +29,8 @@ router.get('/appointments', authMiddleware, (req, res) => getAppointments(req, r
 router.get('/employee-patients', authMiddleware, getEmployeePatients);
 
 // Review routes
-router.get('/reviews/:employeeId', authMiddleware, getReview);
+router.post('/reviews', authMiddleware, (req, res) => addReview(req, res));
+router.get('/reviews/:employeeId', authMiddleware, (req, res) => getReview(req, res));
 router.post('/remarks', authMiddleware, addRemark);
 router.get('/remarks/:patientId', authMiddleware, getRemarks);
 

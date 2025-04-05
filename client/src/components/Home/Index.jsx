@@ -230,6 +230,110 @@ const Index = () => {
         </Grid>
       </Container>
 
+      {/* AI Chatbot Section */}
+      <Box 
+        sx={{ 
+          py: 8, 
+          bgcolor: 'background.default',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'radial-gradient(circle at top right, rgba(25,118,210,0.05) 0%, transparent 70%)',
+            zIndex: 0
+          }
+        }}
+      >
+        <Container>
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6} sx={{ position: 'relative', zIndex: 1 }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Typography 
+                  variant="h3" 
+                  sx={{ 
+                    mb: 2,
+                    fontWeight: 'bold',
+                    background: 'linear-gradient(45deg, #2196F3 30%, #00E5FF 90%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  Meet Our AI Health Assistant
+                </Typography>
+                <Typography variant="h6" color="text.secondary" sx={{ mb: 3 }}>
+                  Get instant answers to your health questions, 24/7 support, and 
+                  personalized guidance with our AI-powered healthcare chatbot.
+                </Typography>
+                <Box sx={{ mb: 4 }}>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    • Get quick answers to common health questions
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    • Available 24/7 for immediate assistance
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 1 }}>
+                    • Privacy-focused and personalized responses
+                  </Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => window.location.href = '/chatbot'}
+                  endIcon={<ArrowForward />}
+                  sx={{
+                    borderRadius: '30px',
+                    py: 1.5,
+                    px: 4,
+                    textTransform: 'none',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                    boxShadow: theme => `0 8px 16px ${alpha(theme.palette.primary.main, 0.3)}`,
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: theme => `0 12px 20px ${alpha(theme.palette.primary.main, 0.5)}`,
+                      transition: 'transform 0.3s, box-shadow 0.3s'
+                    }
+                  }}
+                >
+                  Chat Now
+                </Button>
+              </motion.div>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Box
+                  component="img"
+                  src="https://via.placeholder.com/600x400?text=AI+Health+Assistant"
+                  alt="AI Health Assistant"
+                  sx={{
+                    width: '100%',
+                    maxWidth: 500,
+                    height: 'auto',
+                    borderRadius: '20px',
+                    boxShadow: '0 16px 32px rgba(0,0,0,0.15)',
+                    transform: 'perspective(800px) rotateY(-5deg)',
+                  }}
+                />
+              </motion.div>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
       {/* Featured Professionals */}
       <Box sx={{ bgcolor: 'grey.50', py: 8, borderRadius: '50px 50px 0 0' }}>
         <Container>
