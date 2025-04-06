@@ -47,7 +47,15 @@ const Plogin = () => {
             if (data.token) {
                 localStorage.setItem("patientToken", data.token);
                 localStorage.setItem("patientInfo", JSON.stringify(data.user));
-                window.location.href = "/patient-dashboard";
+                
+                // Check if there's a redirect path in sessionStorage
+                const redirectPath = sessionStorage.getItem('redirectAfterLogin');
+                if (redirectPath) {
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    window.location.href = redirectPath;
+                } else {
+                    window.location.href = "/patient-dashboard";
+                }
             } else if (isRegistering) {
                 setIsRegistering(false);
                 setMessage({ type: "success", text: "Registration successful! Please login." });

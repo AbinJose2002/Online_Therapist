@@ -50,21 +50,57 @@ const Chatbot = () => {
   const theme = useTheme();
   const navigate = useNavigate();
 
-  // Keywords to match for different healthcare professional types
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return 'https://via.placeholder.com/140x140?text=Healthcare+Professional';
+    
+    try {
+      const cleanPath = imagePath.replace(/^\/+/, '');
+      if (cleanPath.startsWith('http')) return cleanPath;
+      return `http://localhost:8080/${cleanPath}`;
+    } catch (error) {
+      console.error('Error processing image path:', error);
+      return 'https://via.placeholder.com/140x140?text=Healthcare+Professional';
+    }
+  };
+
   const keywordMap = {
     'Therapist': [
       'anxiety', 'depression', 'stress', 'mental health', 'therapy', 'counseling', 
       'emotions', 'trauma', 'grief', 'mood', 'psychologist', 'psychiatrist', 'therapist',
-      'panic attack', 'ocd', 'insomnia', 'adhd', 'phobia'
+      'panic attack', 'ocd', 'insomnia', 'adhd', 'phobia', 'bipolar', 'schizophrenia',
+      'eating disorder', 'anorexia', 'bulimia', 'psychological', 'emotional', 'mental',
+      'cognitive', 'behavioral', 'ptsd', 'post-traumatic', 'addiction', 'substance abuse',
+      'alcoholism', 'suicide', 'self-harm', 'suicidal', 'thoughts', 'feeling sad',
+      'feeling anxious', 'panic', 'worry', 'worrying', 'can\'t sleep', 'nightmares',
+      'social anxiety', 'agoraphobia', 'claustrophobia', 'fear', 'therapy session',
+      'relationship problems', 'family therapy', 'couples counseling', 'marriage counseling',
+      'childhood trauma', 'burnout', 'overwhelming', 'hopeless', 'helpless', 'lonely',
+      'isolation', 'paranoia', 'delusions', 'hallucinations', 'mood swings',
+      'anger management', 'emotional regulation', 'low self-esteem', 'identity crisis',
+      'life transition', 'grief counseling', 'bereavement', 'loss', 'autism', 'autism spectrum',
+      'asperger', 'personality disorder', 'borderline', 'narcissistic', 'antisocial'
     ],
     'Home Nurse': [
-      'injury', 'wound', 'dressing', 'injection', 'blood pressure', 'diabetes', 
-      'medicine', 'medication', 'nurse', 'physiotherapy', 'mobility', 'elder care',
-      'post-surgery', 'home care', 'caregiving', 'medical assistance'
+      'injury', 'wound', 'dressing', 'injection', 'blood pressure', 'diabetes', 'glucose',
+      'medicine', 'medication', 'nurse', 'nursing', 'physiotherapy', 'physical therapy',
+      'mobility', 'elder care', 'elderly', 'senior', 'geriatric', 'post-surgery', 'post-operative',
+      'surgery recovery', 'home care', 'caregiving', 'medical assistance', 'IV', 'catheter',
+      'bandage', 'changing bandages', 'bed sores', 'pressure ulcers', 'feeding tube',
+      'bath assistance', 'bathing help', 'hygiene', 'personal care', 'wheelchair', 'walker',
+      'crutches', 'medical equipment', 'vital signs', 'blood test', 'injection', 'shot',
+      'insulin', 'dialysis', 'kidney', 'heart monitor', 'cardiac care', 'respiratory',
+      'breathing', 'oxygen', 'nebulizer', 'inhaler', 'asthma', 'copd', 'pulmonary',
+      'stroke recovery', 'rehabilitation', 'physical rehabilitation', 'occupational therapy',
+      'speech therapy', 'wound care', 'changing dressings', 'suture removal', 'stitches',
+      'staples', 'drain care', 'tube feeding', 'medication management', 'pill organizer',
+      'forgot to take medicine', 'medicine reminder', 'falls', 'fall prevention', 'balance problems',
+      'difficulty walking', 'immobile', 'bedridden', 'paralysis', 'paralyzed', 'amputation',
+      'prosthetic', 'artificial limb', 'hospice', 'palliative care', 'terminal illness',
+      'chronic pain', 'pain management', 'patient assistance', 'caregiver', 'home health aide',
+      'dementia care', 'alzheimer', 'memory care', 'cancer care', 'oncology', 'chemotherapy'
     ]
   };
 
-  // Scroll to bottom when messages update
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -74,31 +110,42 @@ const Chatbot = () => {
   };
 
   const analyzeProblem = (text) => {
-    // Convert input to lowercase for case-insensitive matching
     const lowercaseText = text.toLowerCase();
-    
-    // Count matches for each service type
-    const counts = {};
-    let maxCount = 0;
+    const scores = {};
+    let maxScore = 0;
     let detectedType = null;
     
     for (const [type, keywords] of Object.entries(keywordMap)) {
-      counts[type] = 0;
+      scores[type] = 0;
       
       for (const keyword of keywords) {
-        if (lowercaseText.includes(keyword.toLowerCase())) {
-          counts[type]++;
+        const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+        if (regex.test(lowercaseText)) {
+          scores[type] += 2;
+        } else if (lowercaseText.includes(keyword.toLowerCase())) {
+          scores[type] += 1;
         }
       }
       
-      if (counts[type] > maxCount) {
-        maxCount = counts[type];
+      if (type === 'Therapist' && 
+          (lowercaseText.includes('feel') || lowercaseText.includes('feeling') || 
+           lowercaseText.includes('mind') || lowercaseText.includes('thoughts'))) {
+        scores[type] += 1;
+      }
+      
+      if (type === 'Home Nurse' && 
+          (lowercaseText.includes('hurt') || lowercaseText.includes('pain') || 
+           lowercaseText.includes('physical') || lowercaseText.includes('help with'))) {
+        scores[type] += 1;
+      }
+      
+      if (scores[type] > maxScore) {
+        maxScore = scores[type];
         detectedType = type;
       }
     }
     
-    // If no specific type is detected, return null
-    return maxCount > 0 ? detectedType : null;
+    return maxScore >= 2 ? detectedType : null;
   };
 
   const fetchEmployeesByType = async (serviceType) => {
@@ -124,6 +171,27 @@ const Chatbot = () => {
     }
   };
 
+  const handleBookAppointment = (employeeId) => {
+    if (!localStorage.getItem('patientToken')) {
+      sessionStorage.setItem('redirectAfterLogin', `/patient-dashboard/book-appointment/${employeeId}`);
+      
+      setMessages(prev => [...prev, {
+        id: prev.length + 1,
+        text: "You need to login first before booking an appointment. I'll redirect you to the login page.",
+        sender: 'bot',
+        timestamp: new Date()
+      }]);
+      
+      setTimeout(() => {
+        navigate('/patient-login');
+      }, 2000);
+      
+      return;
+    }
+    
+    navigate(`/patient-dashboard/book-appointment/${employeeId}`);
+  };
+
   const handleSendMessage = async () => {
     if (!input.trim()) return;
     
@@ -138,7 +206,6 @@ const Chatbot = () => {
     setInput('');
     setLoading(true);
     
-    // Update conversation history with user message
     const updatedHistory = [
       ...conversationHistory,
       { role: "user", content: input }
@@ -146,25 +213,29 @@ const Chatbot = () => {
     setConversationHistory(updatedHistory);
     
     try {
-      // Call OpenAI API for analysis
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      
       const response = await axios.post(
         'http://localhost:8080/api/ai/chat', 
-        { messages: updatedHistory }
+        { messages: updatedHistory },
+        {
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal
+        }
       );
       
-      // Get AI response
+      clearTimeout(timeoutId);
+      
       const aiMessage = response.data.message;
       
-      // Add AI response to conversation history
       setConversationHistory([
         ...updatedHistory,
         { role: "assistant", content: aiMessage }
       ]);
       
-      // Check if response contains healthcare recommendations
       const detectedType = analyzeProblem(input);
       
-      // Create bot response with AI-generated text
       const botResponse = {
         id: messages.length + 2,
         text: aiMessage,
@@ -174,16 +245,13 @@ const Chatbot = () => {
       
       setMessages(prev => [...prev, botResponse]);
       
-      // If a healthcare professional type is detected, show recommendations
       if (detectedType) {
-        // Fetch employees based on detected type
         const employees = await fetchEmployeesByType(detectedType);
         
         if (employees.length > 0) {
           setSuggestedEmployees(employees.slice(0, 3));
           setShowingSuggestions(true);
           
-          // Add follow-up message about recommendations
           const recommendationMessage = {
             id: messages.length + 3,
             text: `Based on your health concerns, I've found some ${detectedType} professionals who might be able to help you.`,
@@ -196,36 +264,53 @@ const Chatbot = () => {
         }
       }
     } catch (error) {
-      console.error('Error getting AI response:', error);
+      console.error('AI service error:', error);
       
-      // Fallback to existing keyword analysis if AI service fails
-      const detectedType = analyzeProblem(input);
-      let botResponse;
+      let errorMessage = 'Sorry, I had trouble processing your request.';
       
-      if (detectedType) {
-        botResponse = {
-          id: messages.length + 2,
-          text: `Based on your description, it sounds like you might benefit from consulting with a ${detectedType}. Would you like me to suggest some professionals?`,
-          sender: 'bot',
-          timestamp: new Date(),
-          detectedType: detectedType
-        };
-        
-        // Fetch employees based on detected type
-        const employees = await fetchEmployeesByType(detectedType);
-        setSuggestedEmployees(employees.slice(0, 3)); // Get top 3 matches
-        setShowingSuggestions(true);
-      } else {
-        botResponse = {
-          id: messages.length + 2,
-          text: "I'm not sure what specific health professional would be best for your needs. Could you provide more details about your symptoms or what kind of help you're looking for?",
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        setShowingSuggestions(false);
+      if (error.name === 'AbortError' || error.code === 'ECONNABORTED') {
+        errorMessage = 'The AI service is taking too long to respond. Let me try to help directly.';
+      } else if (error.response?.status === 429) {
+        errorMessage = 'Our AI service is experiencing high demand. Let me try to help you another way.';
       }
       
-      setMessages(prev => [...prev, botResponse]);
+      setMessages(prev => [...prev, {
+        id: messages.length + 2,
+        text: errorMessage,
+        sender: 'bot',
+        timestamp: new Date()
+      }]);
+      
+      setTimeout(async () => {
+        const detectedType = analyzeProblem(input);
+        
+        if (detectedType) {
+          const employees = await fetchEmployeesByType(detectedType);
+          
+          if (employees.length > 0) {
+            setSuggestedEmployees(employees.slice(0, 3));
+            setShowingSuggestions(true);
+            
+            const recommendationMessage = {
+              id: messages.length + 3,
+              text: `Based on your health concerns, I've found some ${detectedType} professionals who might be able to help you.`,
+              sender: 'bot',
+              timestamp: new Date(),
+              detectedType: detectedType
+            };
+            
+            setMessages(prev => [...prev, recommendationMessage]);
+          }
+        } else {
+          setMessages(prev => [...prev, {
+            id: messages.length + 3,
+            text: "I'm not sure what specific health professional would be best for your needs. Could you provide more details about your symptoms or what kind of help you're looking for?",
+            sender: 'bot',
+            timestamp: new Date()
+          }]);
+          setShowingSuggestions(false);
+        }
+      }, 1000);
     } finally {
       setLoading(false);
     }
@@ -262,7 +347,6 @@ const Chatbot = () => {
           boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
         }}
       >
-        {/* Header */}
         <Box 
           sx={{ 
             p: 2, 
@@ -278,7 +362,6 @@ const Chatbot = () => {
           <Typography variant="h6">Health Advisor AI</Typography>
         </Box>
         
-        {/* Messages area */}
         <Box 
           sx={{ 
             flexGrow: 1, 
@@ -357,7 +440,6 @@ const Chatbot = () => {
             </Box>
           ))}
           
-          {/* Loading indicator */}
           {loading && (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, ml: 5 }}>
               <Avatar
@@ -373,7 +455,6 @@ const Chatbot = () => {
             </Box>
           )}
           
-          {/* Professional suggestions */}
           {showingSuggestions && suggestedEmployees.length > 0 && (
             <Box sx={{ mt: 2, ml: 5 }}>
               <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 2 }}>
@@ -401,7 +482,7 @@ const Chatbot = () => {
                         <CardMedia
                           component="img"
                           height="140"
-                          image={`http://localhost:8080${employee.image}`}
+                          image={getImageUrl(employee.image)}
                           alt={employee.firstName}
                           onError={(e) => {
                             e.target.onerror = null;
@@ -423,7 +504,7 @@ const Chatbot = () => {
                             variant="outlined" 
                             size="small" 
                             sx={{ mt: 2 }}
-                            onClick={() => navigate(`/book-appointment/${employee._id}`)}
+                            onClick={() => handleBookAppointment(employee._id)}
                           >
                             Book Appointment
                           </Button>
@@ -449,7 +530,6 @@ const Chatbot = () => {
           <div ref={messagesEndRef} />
         </Box>
         
-        {/* Input area */}
         <Box sx={{ p: 2, bgcolor: '#fff', borderTop: '1px solid #e0e0e0' }}>
           <Grid container spacing={1} alignItems="center">
             <Grid item xs>

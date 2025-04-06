@@ -16,22 +16,23 @@ const generateAIResponse = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid messages format' });
     }
     
-    // Get the last user message for simpler API integrations
     const userMessage = messages.find(m => m.role === 'user')?.content || '';
+    if (!userMessage.trim()) {
+      return res.status(400).json({ success: false, message: 'Empty user message' });
+    }
     
-    // Choose which AI service to use based on environment variable
-    switch(AI_PROVIDER) {
-      case 'openai':
-        return await handleOpenAI(req, res, messages);
-      case 'huggingface':
-        return await handleHuggingFace(req, res, userMessage);
-      case 'ollama':
-        return await handleOllama(req, res, userMessage);
-      default:
-        return fallbackResponse(req, res);
+    // Choose which AI service to use
+    const AI_PROVIDER = process.env.AI_PROVIDER || 'fallback';
+    console.log(`Using AI provider: ${AI_PROVIDER}`);
+    
+    switch(AI_PROVIDER.toLowerCase()) {
+      case 'openai': return await handleOpenAI(req, res, messages);
+      case 'huggingface': return await handleHuggingFace(req, res, userMessage);
+      case 'ollama': return await handleOllama(req, res);
+      default: return fallbackResponse(req, res);
     }
   } catch (error) {
-    console.error('AI service error:', error.response?.data || error.message);
+    console.error('AI service error:', error.message);
     return fallbackResponse(req, res);
   }
 };
@@ -109,36 +110,69 @@ const handleHuggingFace = async (req, res, userMessage) => {
 };
 
 // Enhanced Ollama handler for better performance
-const handleOllama = async (req, res, userMessage) => {
+const handleOllama = async (req, res) => {
   try {
     // Get Ollama URL from environment variables with fallback
     const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434/api/generate';
     
     // Get latest user message
-    const userContent = req.body.messages.find(m => m.role === 'user')?.content || userMessage;
+    const userContent = req.body.messages.find(m => m.role === 'user')?.content || '';
     
-    // Construct a more comprehensive prompt with context
-    const healthContext = 'You are a healthcare assistant helping patients find the right professionals for their needs. ' +
-                         'Provide helpful, accurate information about health conditions. ' + 
-                         'If you detect mental health issues, suggest a Therapist. ' +
-                         'If you detect physical injuries or medical care needs, suggest a Home Nurse.';
-                         
-    console.log('Sending request to Ollama:', OLLAMA_URL);
+    // Check if Ollama is available by making a simple request
+    try {
+      await axios.get(OLLAMA_URL.replace('/api/generate', '/api/version'), { timeout: 2000 });
+    } catch (error) {
+      console.error('Ollama service unavailable:', error.message);
+      return fallbackResponse(req, res);
+    }
     
-    const response = await axios.post(OLLAMA_URL, {
-      model: "llama2", // You can also try "mistral" or other models you have pulled
-      prompt: `${healthContext} 
-      
-      User question: ${userContent}
-      
-      Please provide a helpful response:`,
-      stream: false,
-      options: {
-        temperature: 0.7,
-        top_p: 0.9,
-        max_tokens: 500
+    // Get available models (with fallback)
+    let modelToUse = 'llama2'; // Default model
+    try {
+      const modelsResponse = await axios.get(OLLAMA_URL.replace('/api/generate', '/api/tags'), { timeout: 2000 });
+      if (modelsResponse.data && modelsResponse.data.models && modelsResponse.data.models.length > 0) {
+        // Prioritize medical-focused models if available
+        const medicalModels = modelsResponse.data.models.filter(m => 
+          m.name.toLowerCase().includes('med') || 
+          m.name.toLowerCase().includes('health') || 
+          m.name.toLowerCase().includes('clinical')
+        );
+        
+        if (medicalModels.length > 0) {
+          modelToUse = medicalModels[0].name;
+        } else {
+          // Otherwise use any available model, preferring smaller ones first
+          modelToUse = modelsResponse.data.models[0].name;
+        }
       }
-    });
+    } catch (error) {
+      console.warn('Could not fetch available models, using default:', error.message);
+    }
+    
+    console.log(`Sending request to Ollama using model: ${modelToUse}`);
+    
+    const response = await axios.post(
+      OLLAMA_URL, 
+      {
+        model: modelToUse,
+        prompt: `You are a healthcare assistant helping patients find the right professionals for their needs.
+        Be helpful, accurate, and compassionate when discussing health conditions.
+        If mental health issues like anxiety, depression, or stress are mentioned, suggest a Therapist would be appropriate.
+        If physical injuries, wounds, medical care needs, or elder care are mentioned, suggest a Home Nurse.
+        
+        User question: ${userContent}
+        
+        Please provide a helpful response:`,
+        stream: false,
+        options: {
+          temperature: 0.7,
+          top_p: 0.9,
+          top_k: 40,
+          max_tokens: 500
+        }
+      },
+      { timeout: 10000 } // 10 second timeout
+    );
     
     if (response.data && response.data.response) {
       return res.status(200).json({
@@ -152,36 +186,41 @@ const handleOllama = async (req, res, userMessage) => {
     }
   } catch (error) {
     console.error('Ollama error:', error.message);
-    if (error.response) {
-      console.error('Ollama API response:', error.response.data);
-    }
     return fallbackResponse(req, res);
   }
 };
 
-// Enhanced fallback response with more healthcare patterns
+// Enhanced fallback response with more comprehensive healthcare patterns
 const fallbackResponse = (req, res) => {
   const userMessage = req.body.messages.find(m => m.role === 'user')?.content || '';
   const lowercaseMsg = userMessage.toLowerCase();
   
-  // Create pattern matching for common health concerns
+  // Enhanced pattern matching for common health concerns
   let responseMessage = "I'm here to help with your health concerns. Could you tell me more about your symptoms or what kind of healthcare professional you're looking for?";
   
-  if (lowercaseMsg.includes('depress') || lowercaseMsg.includes('anxiety') || 
-      lowercaseMsg.includes('stress') || lowercaseMsg.includes('sad') || 
-      lowercaseMsg.includes('worried') || lowercaseMsg.includes('therapy')) {
-    responseMessage = "It sounds like you might be experiencing symptoms related to mental health. Speaking with a therapist or psychologist could be helpful. Would you like me to suggest some mental health professionals?";
+  // Mental health patterns - Fix the regex syntax error
+  if (
+    /\b(depress(ed|ion)?|anxiet(y|ies)|stress(ed)?|sad(ness)?|worried|therapy|mental health|moods?|emotion|trauma|grief|ptsd|panic|ocd|adhd|bipolar|schizophrenia|insomnia|suicide|self-harm|phobia|disorder)\b/i.test(lowercaseMsg)
+  ) {
+    responseMessage = "Based on what you've shared, you might be experiencing symptoms related to mental health. Speaking with a qualified therapist could be very helpful for addressing these concerns. Our platform has licensed psychologists and therapists who specialize in various mental health areas. Would you like me to suggest some professionals who could help?";
   } 
-  else if (lowercaseMsg.includes('wound') || lowercaseMsg.includes('injury') ||
-          lowercaseMsg.includes('pain') || lowercaseMsg.includes('hurt') || 
-          lowercaseMsg.includes('bandage') || lowercaseMsg.includes('nurse')) {
-    responseMessage = "For physical injuries, wound care, or general medical assistance, a home nurse or healthcare provider would be appropriate. Would you like me to help you find one?";
+  // Physical health & home care patterns - Fix the regex syntax error
+  else if (
+    /\b(wound|injur(y|ies)|pain|hurt|bandage|nurse|medication|medicine|blood pressure|diabetes|insulin|dressing|mobility|elder|senior|post-surgery|home care|caregiving|physical|rehabilitation|bath assistance|hygiene|wheelchair|walker|crutches|vital signs|oxygen|breathing|stroke|chronic|terminal|hospice|alzheimer|dementia|cancer)\b/i.test(lowercaseMsg)
+  ) {
+    responseMessage = "It sounds like you might need medical assistance or home care services. A qualified home nurse could provide the care and support you need for physical conditions, recovery, or ongoing medical assistance. Our platform connects patients with experienced home nursing professionals. Would you like me to help you find a suitable home nurse for your needs?";
   }
-  else if (lowercaseMsg.includes('headache') || lowercaseMsg.includes('migraine')) {
-    responseMessage = "Headaches can have many causes. For recurring or severe headaches, consulting with a neurologist may be helpful. Would you like more information about managing headaches?";
+  // Sleep-related patterns
+  else if (/\b(sleep|insomnia|nightmares|can't sleep|trouble sleeping|sleeping pills|sleep disorder|fatigue|tired|exhausted)\b/i.test(lowercaseMsg)) {
+    responseMessage = "Sleep issues can significantly impact your overall health and well-being. Many of our therapists specialize in sleep disorders and can help you develop better sleep habits. Would you like me to recommend a sleep specialist or therapist who can help with these concerns?";
   }
-  else if (lowercaseMsg.includes('sleep') || lowercaseMsg.includes('insomnia')) {
-    responseMessage = "Sleep issues can significantly impact your health. A sleep specialist or therapist specializing in sleep disorders could help. Would you like me to suggest some professionals?";
+  // Pain-related patterns 
+  else if (/\b(headache|migraine|pain|chronic pain|back pain|neck pain|joint pain|arthritis)\b/i.test(lowercaseMsg)) {
+    responseMessage = "I understand you're experiencing pain, which can be difficult to manage. Depending on your situation, you might benefit from a home nurse who can provide pain management techniques and care. Would you like information about healthcare professionals who specialize in pain management?";
+  }
+  // General health question pattern
+  else if (/\b(how|what|when|should|need|doctor|health|medical|treatment|symptom|diagnosis|cure|remedy|medicine|prescription)\b/i.test(lowercaseMsg)) {
+    responseMessage = "It sounds like you have a health-related question. While I can provide general information, connecting with a healthcare professional would be best for personalized advice. Based on your question, would you prefer to speak with a therapist for mental health concerns or a home nurse for physical health needs?";
   }
   
   return res.status(200).json({
