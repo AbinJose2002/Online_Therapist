@@ -15,6 +15,10 @@ import PaymentSuccess from './components/Payment/PaymentSuccess';
 import Chatbot from './components/Chatbot/Chatbot';
 import Footer from './components/Footer/Footer';
 import Box from '@mui/material/Box';
+<<<<<<< HEAD
+=======
+import AIHelper from './components/Chatbot/AIHelper';
+>>>>>>> f13231d (bot set)
 
 function App() {
   useEffect(() => {
@@ -52,7 +56,12 @@ function App() {
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+<<<<<<< HEAD
             <Route path="/chatbot" element={<Chatbot />} />
+=======
+            <Route path="/chatbot" element={<AIHelper />} />
+            <Route path="/ai-helper" element={<AIHelper />} />
+>>>>>>> f13231d (bot set)
           </Routes>
         </Box>
         <Footer />

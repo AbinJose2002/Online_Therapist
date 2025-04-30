@@ -47,6 +47,7 @@ mongoose.connection.on('error', (err) => {
   console.log('Error connecting to MongoDB:', err);
 });
 
+<<<<<<< HEAD
 // Middleware for file uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -54,11 +55,32 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 const imageDir = 'uploads/images';
 const documentDir = 'uploads/documents';
 [imageDir, documentDir].forEach(dir => {
+=======
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+const imageDir = path.join(uploadsDir, 'images');
+const documentsDir = path.join(uploadsDir, 'documents');
+
+[uploadsDir, imageDir, documentsDir].forEach(dir => {
+>>>>>>> f13231d (bot set)
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
+<<<<<<< HEAD
+=======
+// Middleware for file uploads - add debug logging
+app.use('/uploads', (req, res, next) => {
+  console.log('Accessing uploads:', req.url);
+  express.static(path.join(__dirname, 'uploads'))(req, res, next);
+});
+
+// Special middleware to handle images and documents separately
+app.use('/uploads/images', express.static(path.join(__dirname, 'uploads', 'images')));
+app.use('/uploads/documents', express.static(path.join(__dirname, 'uploads', 'documents')));
+
+>>>>>>> f13231d (bot set)
 // Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/employee', employeeRoutes);

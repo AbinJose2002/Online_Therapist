@@ -198,6 +198,7 @@ const fallbackResponse = (req, res) => {
   // Enhanced pattern matching for common health concerns
   let responseMessage = "I'm here to help with your health concerns. Could you tell me more about your symptoms or what kind of healthcare professional you're looking for?";
   
+<<<<<<< HEAD
   // Mental health patterns - Fix the regex syntax error
   if (
     /\b(depress(ed|ion)?|anxiet(y|ies)|stress(ed)?|sad(ness)?|worried|therapy|mental health|moods?|emotion|trauma|grief|ptsd|panic|ocd|adhd|bipolar|schizophrenia|insomnia|suicide|self-harm|phobia|disorder)\b/i.test(lowercaseMsg)
@@ -209,6 +210,19 @@ const fallbackResponse = (req, res) => {
     /\b(wound|injur(y|ies)|pain|hurt|bandage|nurse|medication|medicine|blood pressure|diabetes|insulin|dressing|mobility|elder|senior|post-surgery|home care|caregiving|physical|rehabilitation|bath assistance|hygiene|wheelchair|walker|crutches|vital signs|oxygen|breathing|stroke|chronic|terminal|hospice|alzheimer|dementia|cancer)\b/i.test(lowercaseMsg)
   ) {
     responseMessage = "It sounds like you might need medical assistance or home care services. A qualified home nurse could provide the care and support you need for physical conditions, recovery, or ongoing medical assistance. Our platform connects patients with experienced home nursing professionals. Would you like me to help you find a suitable home nurse for your needs?";
+=======
+  // Mental health or physical therapy patterns (all mapped to Therapist)
+  if (
+    /\b(depress(ed|ion)?|anxiet(y|ies)|stress(ed)?|sad(ness)?|worried|therapy|mental health|moods?|emotion|trauma|grief|ptsd|panic|ocd|adhd|bipolar|schizophrenia|insomnia|suicide|self-harm|phobia|disorder|physical therapy|physiotherapy|rehab|rehabilitation|sport(s)? injury|joint pain|muscle pain|back pain|neck pain|knee pain|shoulder|sprain|strain|mobility|exercise therapy|posture|gait|balance|coordination)\b/i.test(lowercaseMsg)
+  ) {
+    responseMessage = "Based on what you've shared, you might benefit from consulting with a Therapist. Our platform has licensed professionals who specialize in various mental health concerns and physical rehabilitation. Would you like me to suggest some therapists who could help?";
+  } 
+  // Physical health & home care patterns
+  else if (
+    /\b(wound|injur(y|ies)|pain|hurt|bandage|nurse|medication|medicine|blood pressure|diabetes|insulin|dressing|mobility|elder|senior|post-surgery|home care|caregiving|physical|rehabilitation|bath assistance|hygiene|wheelchair|walker|crutches|vital signs|oxygen|breathing|stroke|chronic|terminal|hospice|alzheimer|dementia|cancer)\b/i.test(lowercaseMsg)
+  ) {
+    responseMessage = "It sounds like you might need medical assistance or home care services. A qualified Home Nurse could provide the care and support you need for physical conditions, recovery, or ongoing medical assistance. Our platform connects patients with experienced home nursing professionals. Would you like me to help you find a suitable home nurse for your needs?";
+>>>>>>> f13231d (bot set)
   }
   // Sleep-related patterns
   else if (/\b(sleep|insomnia|nightmares|can't sleep|trouble sleeping|sleeping pills|sleep disorder|fatigue|tired|exhausted)\b/i.test(lowercaseMsg)) {
@@ -222,6 +236,13 @@ const fallbackResponse = (req, res) => {
   else if (/\b(how|what|when|should|need|doctor|health|medical|treatment|symptom|diagnosis|cure|remedy|medicine|prescription)\b/i.test(lowercaseMsg)) {
     responseMessage = "It sounds like you have a health-related question. While I can provide general information, connecting with a healthcare professional would be best for personalized advice. Based on your question, would you prefer to speak with a therapist for mental health concerns or a home nurse for physical health needs?";
   }
+<<<<<<< HEAD
+=======
+  // Physical therapy patterns
+  else if (/\b(physical therapy|physiotherapy|rehab|rehabilitation|sport(s)? injury|joint pain|muscle pain|back pain|neck pain|knee pain|shoulder|sprain|strain|mobility|exercise therapy|posture|gait|balance|coordination)\b/i.test(lowercaseMsg)) {
+    responseMessage = "Based on what you've described, a Physiotherapist would be appropriate for your needs. Physiotherapists specialize in treating physical conditions, improving mobility, and rehabilitating injuries through specialized exercises and techniques. Would you like me to recommend a qualified physiotherapist?";
+  }
+>>>>>>> f13231d (bot set)
   
   return res.status(200).json({
     success: true,

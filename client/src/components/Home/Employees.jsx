@@ -114,6 +114,10 @@ export default function Employees() {
                     <option value="">All Services</option>
                     <option value="Therapist">Therapist</option>
                     <option value="Home Nurse">Home Nurse</option>
+<<<<<<< HEAD
+=======
+                    <option value="Physiotherapist">Physiotherapist</option>
+>>>>>>> f13231d (bot set)
                   </select>
                 </div>
               </div>

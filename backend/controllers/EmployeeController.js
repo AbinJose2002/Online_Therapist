@@ -132,7 +132,14 @@ const getEmployees = async (req, res) => {
     const query = {};
     
     if (location) query.location = location;
+<<<<<<< HEAD
     if (serviceType) query.serviceType = serviceType;
+=======
+    if (serviceType) {
+      // Make serviceType search case insensitive
+      query.serviceType = { $regex: new RegExp(`^${serviceType}$`, 'i') };
+    }
+>>>>>>> f13231d (bot set)
     
     console.log('Fetching employees with query:', query);
 
@@ -143,6 +150,13 @@ const getEmployees = async (req, res) => {
     console.log('Found employees:', employees.length);
 
     if (!employees || employees.length === 0) {
+<<<<<<< HEAD
+=======
+      // Log all service types in database for debugging
+      const allServiceTypes = await Employee.distinct('serviceType');
+      console.log('Available service types in database:', allServiceTypes);
+      
+>>>>>>> f13231d (bot set)
       return res.status(200).json([]);
     }
 
@@ -152,6 +166,15 @@ const getEmployees = async (req, res) => {
       // Standardize image path handling
       const getAssetPath = (filePath) => {
         if (!filePath) return null;
+<<<<<<< HEAD
+=======
+        
+        // Different logic for different path formats
+        if (filePath.startsWith('images/') || filePath.startsWith('documents/')) {
+          return `/uploads/${filePath}`;
+        }
+        
+>>>>>>> f13231d (bot set)
         // Remove any leading slashes and duplicate 'uploads'
         const cleanPath = filePath.replace(/^\/+/, '').replace(/^uploads\/+/, '');
         return `/uploads/${cleanPath}`;

@@ -44,6 +44,7 @@ const Navbar = () => {
   };
 
   return (
+<<<<<<< HEAD
     <nav className="navbar navbar-expand-lg navbar-light bg-light px-4">
       <Link className="navbar-brand" to="/">HealthCare</Link>
       
@@ -141,6 +142,116 @@ const Navbar = () => {
             </ul>
           </div>
         )}
+=======
+    <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
+      <div className="container-fluid px-4">
+        <Link className="navbar-brand" to="/">
+          <img src="/logo.png" height="40" alt="Logo" />
+          <span className="ms-2 fw-bold">HealthConnect</span>
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav ms-auto">
+            <li className="nav-item">
+              <Link className="nav-link" to="/">
+                Home
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/employees">
+                Healthcare Professionals
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/chatbot">
+                AI Health Assistant
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/contact">
+                Contact
+              </Link>
+            </li>
+            {userType ? (
+              <div className="dropdown">
+                <button
+                  type="button"
+                  className="btn btn-link nav-link d-flex align-items-center gap-2"
+                  id="profileDropdown"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="true"
+                  aria-expanded="false"
+                >
+                  <BsPersonCircle size={24} />
+                  <span>{userName}</span>
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                  <li>
+                    <Link className="dropdown-item" to={getDashboardLink()}>
+                      Dashboard
+                    </Link>
+                  </li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li>
+                    <button className="dropdown-item text-danger" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              <div className="dropdown">
+                <button
+                  type="button"
+                  className="btn btn-primary dropdown-toggle"
+                  id="loginDropdown"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="true"
+                  aria-expanded="false"
+                >
+                  Login
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="loginDropdown">
+                  <li>
+                    <button 
+                      className="dropdown-item" 
+                      onClick={() => navigate("/patient-login")}
+                    >
+                      Patient Login
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className="dropdown-item" 
+                      onClick={() => navigate("/employee-login")}
+                    >
+                      Employee Login
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className="dropdown-item" 
+                      onClick={() => navigate("/admin-login")}
+                    >
+                      Admin Login
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+          </ul>
+        </div>
+>>>>>>> f13231d (bot set)
       </div>
     </nav>
   );

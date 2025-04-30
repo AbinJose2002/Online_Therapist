@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import medical from '../../assets/medical.jpg'
+<<<<<<< HEAD
+=======
+import { Link } from 'react-router-dom';
+>>>>>>> f13231d (bot set)
 import {
   Box,
   Container,
@@ -334,6 +338,62 @@ const Index = () => {
         </Container>
       </Box>
 
+<<<<<<< HEAD
+=======
+      {/* Add AI Health Assistant Section */}
+      <Box sx={{ py: 8, bgcolor: '#f5f7fa' }}>
+        <Container maxWidth="lg">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <Typography 
+              variant="h3" 
+              fontWeight="bold" 
+              textAlign="center" 
+              color="primary.main"
+              gutterBottom
+            >
+              AI Health Assistant
+            </Typography>
+            <Typography 
+              variant="h6" 
+              textAlign="center" 
+              color="text.secondary" 
+              sx={{ mb: 6, maxWidth: '800px', mx: 'auto' }}
+            >
+              Not sure what healthcare professional you need? Our AI assistant can analyze your health concerns and recommend the right specialists.
+            </Typography>
+            
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button 
+                component={Link}
+                to="/chatbot"
+                variant="contained" 
+                size="large"
+                sx={{ 
+                  px: 4, 
+                  py: 1.5, 
+                  borderRadius: 2,
+                  fontSize: '1.1rem',
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+                  '&:hover': {
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 12px 25px rgba(0,0,0,0.15)'
+                  },
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Try AI Health Assistant
+              </Button>
+            </Box>
+          </motion.div>
+        </Container>
+      </Box>
+      
+>>>>>>> f13231d (bot set)
       {/* Featured Professionals */}
       <Box sx={{ bgcolor: 'grey.50', py: 8, borderRadius: '50px 50px 0 0' }}>
         <Container>

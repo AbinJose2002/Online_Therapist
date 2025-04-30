@@ -65,6 +65,10 @@ const Chatbot = () => {
 
   const keywordMap = {
     'Therapist': [
+<<<<<<< HEAD
+=======
+      // Mental health keywords
+>>>>>>> f13231d (bot set)
       'anxiety', 'depression', 'stress', 'mental health', 'therapy', 'counseling', 
       'emotions', 'trauma', 'grief', 'mood', 'psychologist', 'psychiatrist', 'therapist',
       'panic attack', 'ocd', 'insomnia', 'adhd', 'phobia', 'bipolar', 'schizophrenia',
@@ -78,7 +82,19 @@ const Chatbot = () => {
       'isolation', 'paranoia', 'delusions', 'hallucinations', 'mood swings',
       'anger management', 'emotional regulation', 'low self-esteem', 'identity crisis',
       'life transition', 'grief counseling', 'bereavement', 'loss', 'autism', 'autism spectrum',
+<<<<<<< HEAD
       'asperger', 'personality disorder', 'borderline', 'narcissistic', 'antisocial'
+=======
+      'asperger', 'personality disorder', 'borderline', 'narcissistic', 'antisocial',
+      // Physical therapy keywords
+      'physical therapy', 'physiotherapy', 'rehab', 'rehabilitation', 'sports injury', 
+      'mobility', 'exercise therapy', 'joint pain', 'muscle pain', 'back pain', 
+      'neck pain', 'knee pain', 'shoulder pain', 'sprain', 'strain', 'fracture', 
+      'posture', 'gait', 'balance', 'coordination', 'strength training', 'stretching',
+      'range of motion', 'flexibility', 'stiffness', 'herniated disc', 'sciatica',
+      'tendonitis', 'bursitis', 'frozen shoulder', 'plantar fasciitis', 'shin splints',
+      'tennis elbow', 'golfers elbow', 'carpal tunnel', 'whiplash', 'scoliosis'
+>>>>>>> f13231d (bot set)
     ],
     'Home Nurse': [
       'injury', 'wound', 'dressing', 'injection', 'blood pressure', 'diabetes', 'glucose',
